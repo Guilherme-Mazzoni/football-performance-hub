@@ -45,7 +45,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 15%; /* Foca mais na parte superior (rosto) */
+    object-position: 40% 5%; /* Puxa para esquerda e bem para cima */
     border-radius: 50%;
 }
 
