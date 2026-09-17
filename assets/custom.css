@@ -19,47 +19,40 @@
     margin-bottom: 20px;
 }
 
-/* Glowing Profile Ring */
+/* Profile Container */
+.profile-wrapper {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 20px auto;
+}
+
+/* Glowing Profile Ring (Double Circle Base) */
 .profile-ring {
     position: relative;
     width: 200px;
     height: 200px;
     border-radius: 50%;
-    margin: 0 auto 20px auto;
+    margin: 10px auto;
     background: #000;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    /* Inner solid circle (second circle) */
+    border: 4px solid rgba(100, 100, 100, 0.4);
+    box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.1);
 }
 
-/* The spinning golden gradient (Comet Tail) */
+/* The spinning golden gradient (Comet Tail - Outer Circle) */
 .profile-ring::before {
     content: '';
     position: absolute;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(transparent, transparent, transparent, rgba(212, 175, 55, 1));
-    animation: rotate-ring 4s linear infinite;
-}
-
-/* The inner dark cover to form the border */
-.profile-ring::after {
-    content: '';
-    position: absolute;
-    width: 194px;
-    height: 194px;
-    background: #050505;
+    width: 230px; /* Bigger than the ring to create the double circle effect */
+    height: 230px;
     border-radius: 50%;
-}
-
-@keyframes rotate-ring {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
+    background: conic-gradient(transparent, transparent 150deg, rgba(212, 175, 55, 1) 270deg, transparent 290deg, transparent 360deg);
+    animation: rotate-ring 4s linear infinite;
+    z-index: -1;
 }
 
 /* Fallback Icon inside the ring */
@@ -76,6 +69,31 @@
     object-position: 10% 0%; /* Puxa muito para a esquerda e gruda no topo */
     border-radius: 50%;
     z-index: 2;
+}
+
+/* Player Number Badge */
+.profile-number {
+    position: absolute;
+    bottom: 5px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: #000;
+    border: 2px solid rgba(212, 175, 55, 0.8);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #D4AF37;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+    z-index: 3;
+}
+
+@keyframes rotate-ring {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Sidebar Customization */

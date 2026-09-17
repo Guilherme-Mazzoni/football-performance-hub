@@ -54,15 +54,34 @@ if not df_stats.empty:
             photo_path = base_photo_path + ext
             break
     
+    # Dicionário de números dos jogadores do Galo
+    numeros_camisa = {
+        'Hulk': 7, 'Paulinho': 10, 'Gustavo Scarpa': 6, 'Guilherme Arana': 13,
+        'Matías Zaracho': 15, 'Rodrigo Battaglia': 21, 'Otávio': 5, 'Alan Franco': 23,
+        'Bruno Fuchs': 3, 'Renzo Saravia': 26, 'Igor Gomes': 17, 'Eduardo Vargas': 11,
+        'Alisson': 45, 'Everson': 22
+    }
+    numero = numeros_camisa.get(jogador_selecionado, 99)
+    
     if photo_path:
         import base64
         with open(photo_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode()
             mime_type = "image/" + photo_path.split('.')[-1].replace('jpg', 'jpeg')
-            img_html = f'<div class="profile-ring"><img src="data:{mime_type};base64,{encoded_string}"></div>'
+            img_html = f'''
+            <div class="profile-wrapper">
+                <div class="profile-ring"><img src="data:{mime_type};base64,{encoded_string}"></div>
+                <div class="profile-number">{numero}</div>
+            </div>
+            '''
     else:
         # Silhueta de Fallback
-        img_html = '<div class="profile-ring"><span class="profile-ring-fallback">👤</span></div>'
+        img_html = f'''
+        <div class="profile-wrapper">
+            <div class="profile-ring"><span class="profile-ring-fallback">👤</span></div>
+            <div class="profile-number">{numero}</div>
+        </div>
+        '''
             
     st.sidebar.markdown(img_html, unsafe_allow_html=True)
     
