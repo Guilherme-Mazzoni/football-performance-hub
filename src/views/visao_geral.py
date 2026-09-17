@@ -7,9 +7,9 @@ def render_visao_geral():
     try:
         kpis = get_kpis_gerais()
         
-        # Row 1: KPIs Ofensivos e Gerais
-        # KPIs com layout Premium Glassmorphism
-        col1, col2, col3 = st.columns(3)
+        # Row 1: KPIs Ofensivos
+        st.markdown("<h3 style='color: #D4AF37; margin-bottom: 20px;'>Produção Ofensiva</h3>", unsafe_allow_html=True)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.markdown(f"""
             <div class="glass-card">
@@ -17,43 +17,60 @@ def render_visao_geral():
                 <p data-testid="stMetricValue">{kpis.get('gols', 0)}</p>
             </div>
             """, unsafe_allow_html=True)
+        with col2:
             st.markdown(f"""
             <div class="glass-card">
                 <p data-testid="stMetricLabel">Expectativa de Gols (xG)</p>
                 <p data-testid="stMetricValue">{kpis.get('xg', 0)}</p>
             </div>
             """, unsafe_allow_html=True)
-        with col2:
+        with col3:
             st.markdown(f"""
             <div class="glass-card">
                 <p data-testid="stMetricLabel">Assistências</p>
                 <p data-testid="stMetricValue">{kpis.get('assistencias', 0)}</p>
             </div>
             """, unsafe_allow_html=True)
+        with col4:
             st.markdown(f"""
             <div class="glass-card">
                 <p data-testid="stMetricLabel">Expectativa de Assist. (xA)</p>
                 <p data-testid="stMetricValue">{kpis.get('xa', 0)}</p>
             </div>
             """, unsafe_allow_html=True)
-        with col3:
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Row 2: Desempenho Geral
+        st.markdown("<h3 style='color: #D4AF37; margin-bottom: 20px;'>Desempenho no Campeonato</h3>", unsafe_allow_html=True)
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
             st.markdown(f"""
             <div class="glass-card">
-                <p data-testid="stMetricLabel">Desempenho (Vitórias)</p>
+                <p data-testid="stMetricLabel">Vitórias</p>
                 <p data-testid="stMetricValue">{kpis.get('vitorias', 0)}</p>
             </div>
             """, unsafe_allow_html=True)
+        with col2:
+            st.markdown(f"""
+            <div class="glass-card">
+                <p data-testid="stMetricLabel">Empates</p>
+                <p data-testid="stMetricValue">{kpis.get('empates', 0)}</p>
+            </div>
+            """, unsafe_allow_html=True)
+        with col3:
             st.markdown(f"""
             <div class="glass-card">
                 <p data-testid="stMetricLabel">Derrotas</p>
                 <p data-testid="stMetricValue">{kpis.get('derrotas', 0)}</p>
             </div>
             """, unsafe_allow_html=True)
+        with col4:
             pontos = (kpis.get('vitorias', 0) * 3) + kpis.get('empates', 0)
             st.markdown(f"""
-            <div class="glass-card">
-                <p data-testid="stMetricLabel">Pontos Ganhos</p>
-                <p data-testid="stMetricValue">{pontos}</p>
+            <div class="glass-card" style="border-color: rgba(212, 175, 55, 0.5);">
+                <p data-testid="stMetricLabel" style="color: #D4AF37;">Pontos Ganhos</p>
+                <p data-testid="stMetricValue" style="color: #D4AF37; text-shadow: 0 0 15px rgba(212, 175, 55, 0.6);">{pontos}</p>
             </div>
             """, unsafe_allow_html=True)
         

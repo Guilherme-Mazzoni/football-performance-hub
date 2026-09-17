@@ -20,13 +20,27 @@ load_css()
 import pandas as pd
 from src.data.data_loader import get_player_stats
 
-# Header Horizontal
+# Header - Logo do Clube usando o arquivo SVG local
 col_logo, col_title = st.columns([1, 8])
+
 with col_logo:
     try:
-        st.image("assets/galo.png", width=80)
+        import base64
+        with open("assets/photos/atletico.svg", "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode()
+            st.markdown(
+                f'''
+                <div style="text-align: center;">
+                    <img src="data:image/svg+xml;base64,{encoded_string}" width="70" style="filter: drop-shadow(0px 0px 5px rgba(255,255,255,0.3)); margin-top: 10px;">
+                </div>
+                ''', 
+                unsafe_allow_html=True
+            )
+    except FileNotFoundError:
+        st.markdown("🛡️")
     except:
         st.markdown("🛡️")
+
 with col_title:
     st.title("Galo Performance Hub")
     st.markdown("Dashboard tático e estatístico desenvolvido com dados avançados e Inteligência Artificial.")
