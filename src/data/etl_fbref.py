@@ -32,7 +32,7 @@ def run_etl():
             df_teams.columns = ['_'.join(col).strip('_') for col in df_teams.columns.values]
 
         # Salvar num banco de dados SQLite local
-        db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "performance.db")
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "performance.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
         
         conn = sqlite3.connect(db_path)
@@ -90,7 +90,9 @@ def run_etl():
             })
         df_teams = pd.DataFrame(teams_data)
         
-        db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "performance.db")
+        # Garantindo que salva na pasta raiz do projeto em 'data/performance.db'
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "performance.db")
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
         conn = sqlite3.connect(db_path)
         df_players.to_sql("jogadores_fbref", conn, if_exists="replace", index=False)
         df_teams.to_sql("times_fbref", conn, if_exists="replace", index=False)
