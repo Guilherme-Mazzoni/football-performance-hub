@@ -30,15 +30,27 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4), inset 0 0 15px rgba(212, 175, 55, 0.1);
+    border: 3px solid rgba(212, 175, 55, 0.8);
     overflow: hidden;
+    animation: pulse-ring 3s infinite alternate;
+}
+
+@keyframes pulse-ring {
+    0% {
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.5), inset 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+    100% {
+        box-shadow: 0 0 30px rgba(212, 175, 55, 1), inset 0 0 20px rgba(212, 175, 55, 0.6);
+        border-color: rgba(255, 215, 0, 1);
+    }
 }
 
 /* Fallback Icon inside the ring */
 .profile-ring-fallback {
     font-size: 80px;
     color: #555;
+    z-index: 2;
 }
 
 .profile-ring img {
@@ -47,6 +59,7 @@
     object-fit: cover;
     object-position: 10% 0%; /* Puxa muito para a esquerda e gruda no topo */
     border-radius: 50%;
+    z-index: 2;
 }
 
 /* Sidebar Customization */
