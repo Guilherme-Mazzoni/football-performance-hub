@@ -44,23 +44,25 @@ if not df_stats.empty:
     jogador_selecionado = st.sidebar.selectbox("Selecione um Jogador:", df_linha['nome'].sort_values(), key="global_player")
     
     # Renderizar Foto
-    # Baseado na seleção, procuramos a foto correspondente
-    photo_path = f"assets/photos/{jogador_selecionado}.png"
+    # Baseado na seleção, procuramos a foto correspondente com várias extensões
+    base_photo_path = f"assets/photos/{jogador_selecionado}"
+    extensions = [".png", ".webp", ".jpg", ".jpeg"]
     
-    if os.path.exists(photo_path):
+    photo_path = None
+    for ext in extensions:
+        if os.path.exists(base_photo_path + ext):
+            photo_path = base_photo_path + ext
+            break
+    
+    if photo_path:
         import base64
         with open(photo_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode()
-            img_html = f'<div class="profile-ring"><img src="data:image/png;base64,{encoded_string}"></div>'
+            mime_type = "image/" + photo_path.split('.')[-1].replace('jpg', 'jpeg')
+            img_html = f'<div class="profile-ring"><img src="data:{mime_type};base64,{encoded_string}"></div>'
     else:
-        # Tenta a silhueta padrão
-        try:
-            import base64
-            with open("assets/photos/silhueta.png", "rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read()).decode()
-                img_html = f'<div class="profile-ring"><img src="data:image/png;base64,{encoded_string}"></div>'
-        except:
-            img_html = '<div class="profile-ring"><span class="profile-ring-fallback">👤</span></div>'
+        # Silhueta de Fallback
+        img_html = '<div class="profile-ring"><span class="profile-ring-fallback">👤</span></div>'
             
     st.sidebar.markdown(img_html, unsafe_allow_html=True)
     
