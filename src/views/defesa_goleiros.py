@@ -1,56 +1,62 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from src.data.data_loader import load_jogadores_df, load_eventos_df, load_partidas_df
+from src.data.data_loader import get_player_stats, load_times_fbref
 
 def render_defesa_goleiros():
-    st.title("Defesa & Goleiros")
+    st.title("Sistema Defensivo")
+    st.markdown("Análise da solidez defensiva das equipes")
     
     try:
-        jogadores = load_jogadores_df()
-        eventos = load_eventos_df()
-        partidas = load_partidas_df()
+        times = load_times_fbref()
+        df_stats = get_player_stats()
         
-        goleiros = jogadores[jogadores['posicao'] == 'Goleiro']
-        
-        if goleiros.empty:
-            st.warning("Sem dados de goleiros disponíveis.")
+        if times.empty or df_stats.empty:
+            st.warning("Sem dados defensivos disponíveis. Execute o extrator do FBref.")
             return
             
-        # Calcular defesas por goleiro
-        defesas = eventos[eventos['tipo'] == 'Defesa']
-        stats_goleiros = defesas.groupby('jogador_id').size().reset_index(name='defesas')
-        stats_goleiros = pd.merge(goleiros, stats_goleiros, left_on='id', right_on='jogador_id', how='left').fillna(0)
+        goleiros = df_stats[df_stats['posicao'].str.contains('GK', na=False)]
         
-        # Calcular gols sofridos totais do time (assumindo todos do goleiro titular para simplificar mock)
-        gols_sofridos = partidas['gols_contra'].sum()
-        clean_sheets = partidas[partidas['gols_contra'] == 0].shape[0]
+        # O FBref em sua extração standard foca mais em ações de linha. 
+        # Para ter defesas precisas precisaríamos do stat_type="keepers".
+        # Vamos focar na visão coletiva das equipes para o portfólio.
         
-        # Row 1: KPIs do time
-        st.subheader("Performance Defensiva (Coletivo)")
+        # Identificando a coluna de gols contra no dataset do time
+        cols = times.columns.tolist()
+        col_ga = next((c for c in cols if c in ['goals_against', 'ga']), None)
+        col_cs = next((c for c in cols if c in ['clean_sheets', 'cs']), None)
+        
+        gols_sofridos = int(times[col_ga].sum()) if col_ga else 0
+        clean_sheets = int(times[col_cs].sum()) if col_cs else 0
+        
+        st.subheader("Performance Defensiva do Campeonato")
         col1, col2, col3 = st.columns(3)
-        col1.metric("Gols Sofridos", gols_sofridos)
-        col2.metric("Clean Sheets (Jogos sem Sofrer Gols)", clean_sheets)
-        col3.metric("Total de Defesas (Saves)", int(stats_goleiros['defesas'].sum()))
+        col1.metric("Gols Sofridos (Total Liga)", gols_sofridos)
+        col2.metric("Clean Sheets (Total Liga)", clean_sheets)
+        
+        # Exibindo goleiros listados
+        st.metric("Goleiros Registrados", len(goleiros))
         
         st.markdown("---")
         
-        # Row 2: Goleiros
-        st.subheader("Análise de Goleiros")
-        
-        fig = px.bar(
-            stats_goleiros, x='nome', y='defesas', 
-            text='defesas',
-            labels={'nome': 'Goleiro', 'defesas': 'Nº de Defesas'},
-            title="Volume de Defesas por Goleiro"
-        )
-        fig.update_traces(marker_color='#D4AF37')
-        fig.update_layout(
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
-            font=dict(color="#E0E0E0")
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        st.subheader("Gols Sofridos por Equipe")
+        if col_ga:
+            fig = px.bar(
+                times.sort_values(by=col_ga, ascending=True), 
+                x='team', y=col_ga, 
+                text=col_ga,
+                labels={'team': 'Equipe', col_ga: 'Gols Sofridos'},
+                title="Ranking de Defesas Vazadas"
+            )
+            fig.update_traces(marker_color='#D4AF37')
+            fig.update_layout(
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#E0E0E0")
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Dado de gols sofridos por equipe não disponível nesta extração.")
 
     except Exception as e:
         st.error(f"Erro ao carregar os dados de defesa: {e}")

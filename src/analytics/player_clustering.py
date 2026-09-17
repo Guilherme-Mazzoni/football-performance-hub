@@ -9,7 +9,8 @@ def perform_clustering():
     df = get_player_stats()
     
     # Filtrar jogadores com mínimo de minutos para evitar outliers irreais
-    df_filtered = df[(df['minutos_jogados'] > 90) & (df['posicao'] != 'Goleiro')].copy()
+    # No FBref, goleiros geralmente têm a posição 'GK'
+    df_filtered = df[(df['minutos_jogados'] > 90) & (~df['posicao'].str.contains('GK', na=False))].copy()
     
     if len(df_filtered) < 5:
         # Não há jogadores suficientes para clustering

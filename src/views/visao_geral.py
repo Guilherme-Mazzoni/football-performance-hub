@@ -1,6 +1,6 @@
 import streamlit as st
 import plotly.express as px
-from src.data.data_loader import get_kpis_gerais, load_partidas_df
+from src.data.data_loader import get_kpis_gerais
 from src.analytics.player_clustering import perform_clustering
 
 def render_visao_geral():
@@ -58,4 +58,4 @@ def render_visao_geral():
 
     except Exception as e:
         st.error(f"Erro ao carregar dados da visão geral: {e}")
-        st.info("Execute o gerador de dados (mock_generator.py) para popular o banco de dados local.")
+        st.info("Execute o extrator de dados do FBref (src/data/etl_fbref.py) para popular o banco de dados local.")

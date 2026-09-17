@@ -1,75 +1,125 @@
 import pandas as pd
 import streamlit as st
-from sqlalchemy.orm import Session
-from src.data.database import engine, Jogador, Partida, Evento
-from sqlalchemy import text
+import sqlite3
+import os
+
+DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "performance.db")
 
 @st.cache_data(ttl=3600)
-def load_jogadores_df():
-    query = "SELECT * FROM jogadores"
-    df = pd.read_sql_query(query, engine)
-    return df
+def get_db_connection():
+    return sqlite3.connect(DB_PATH)
 
 @st.cache_data(ttl=3600)
-def load_eventos_df():
-    query = "SELECT * FROM eventos"
-    df = pd.read_sql_query(query, engine)
-    return df
+def load_jogadores_fbref():
+    conn = get_db_connection()
+    try:
+        query = "SELECT * FROM jogadores_fbref"
+        df = pd.read_sql_query(query, conn)
+        return df
+    except Exception as e:
+        st.error(f"Erro ao carregar banco de dados (Jogadores FBref): {e}")
+        return pd.DataFrame()
 
 @st.cache_data(ttl=3600)
-def load_partidas_df():
-    query = "SELECT * FROM partidas"
-    df = pd.read_sql_query(query, engine)
-    return df
+def load_times_fbref():
+    conn = get_db_connection()
+    try:
+        query = "SELECT * FROM times_fbref"
+        df = pd.read_sql_query(query, conn)
+        return df
+    except Exception as e:
+        st.error(f"Erro ao carregar banco de dados (Times FBref): {e}")
+        return pd.DataFrame()
 
 @st.cache_data(ttl=3600)
 def get_kpis_gerais():
-    eventos = load_eventos_df()
-    partidas = load_partidas_df()
+    times = load_times_fbref()
+    jogadores = load_jogadores_fbref()
     
-    gols = len(eventos[eventos['tipo'] == 'Gol'])
-    assistencias = len(eventos[eventos['tipo'] == 'Assistência'])
+    if times.empty or jogadores.empty:
+        return {"gols": 0, "assistencias": 0, "xg_total": 0, "xa_total": 0, "vitorias": 0, "empates": 0, "derrotas": 0}
+        
+    # Agregando dados de todos os times para os KPIs globais do campeonato (ou do primeiro time, dependendo da view)
+    # Como o portfólio pode focar em análise do campeonato inteiro, vamos somar os totais
     
-    xg_total = eventos['xg'].sum()
-    xa_total = eventos['xa'].sum()
+    # O FBref team stats tem colunas como 'goals', 'assists', 'xg', 'xg_assist' (ou 'xa')
+    # O nome das colunas pode variar dependendo da extração, então tentamos os nomes mais comuns:
     
-    vitorias = partidas['vitoria'].sum()
-    empates = partidas['empate'].sum()
-    derrotas = partidas['derrota'].sum()
+    def get_sum(df, possible_cols):
+        for col in possible_cols:
+            if col in df.columns:
+                return df[col].sum()
+        return 0
+
+    gols = get_sum(times, ['goals', 'goals_for', 'gls'])
+    assistencias = get_sum(times, ['assists', 'ast'])
+    xg_total = get_sum(times, ['xg', 'expected_goals'])
+    xa_total = get_sum(times, ['xg_assist', 'xa', 'xag'])
+    
+    vitorias = get_sum(times, ['wins', 'w'])
+    empates = get_sum(times, ['draws', 'd'])
+    derrotas = get_sum(times, ['losses', 'l'])
     
     return {
-        "gols": gols,
-        "assistencias": assistencias,
+        "gols": int(gols),
+        "assistencias": int(assistencias),
         "xg_total": round(xg_total, 2),
         "xa_total": round(xa_total, 2),
-        "vitorias": vitorias,
-        "empates": empates,
-        "derrotas": derrotas
+        "vitorias": int(vitorias),
+        "empates": int(empates),
+        "derrotas": int(derrotas)
     }
 
 @st.cache_data(ttl=3600)
 def get_player_stats():
-    jogadores = load_jogadores_df()
-    eventos = load_eventos_df()
+    # Retorna o dataframe pronto para os gráficos
+    df = load_jogadores_fbref()
     
-    # Agregar eventos por jogador
-    stats = eventos.groupby('jogador_id').agg(
-        gols=('tipo', lambda x: (x == 'Gol').sum()),
-        assistencias=('tipo', lambda x: (x == 'Assistência').sum()),
-        chutes=('tipo', lambda x: (x == 'Chute').sum()),
-        passes_chave=('tipo', lambda x: (x == 'Passe Chave').sum()),
-        xg_total=('xg', 'sum'),
-        xa_total=('xa', 'sum')
-    ).reset_index()
+    # Se não houver dados, retorna vazio
+    if df.empty:
+        return pd.DataFrame()
+        
+    # Garantir que as métricas principais existem com nomes padronizados para as views
+    # Renomeando colunas padrão do fbref para o que as views esperam
     
-    # Merge com os dados do jogador
-    df_merged = pd.merge(jogadores, stats, left_on='id', right_on='jogador_id', how='left').fillna(0)
+    renames = {
+        'player': 'nome',
+        'position': 'posicao',
+        'team': 'time',
+        'age': 'idade',
+        'minutes': 'minutos_jogados',
+        'goals': 'gols',
+        'assists': 'assistencias',
+        'xg': 'xg_total',
+        'xg_assist': 'xa_total',
+        'xag': 'xa_total'
+    }
     
-    # Calcular métricas por 90 min
-    df_merged['minutos_jogados'] = df_merged['minutos_jogados'].replace(0, 1) # Evitar divisão por zero
-    df_merged['xg_90'] = (df_merged['xg_total'] / df_merged['minutos_jogados']) * 90
-    df_merged['xa_90'] = (df_merged['xa_total'] / df_merged['minutos_jogados']) * 90
-    df_merged['gols_90'] = (df_merged['gols'] / df_merged['minutos_jogados']) * 90
-    df_merged['assist_90'] = (df_merged['assistencias'] / df_merged['minutos_jogados']) * 90
+    # Aplica renomeação caso a coluna exista
+    for k, v in renames.items():
+        if k in df.columns:
+            df[v] = df[k]
+            
+    # Garantir colunas essenciais
+    cols_to_fill = ['nome', 'posicao', 'minutos_jogados', 'gols', 'assistencias', 'xg_total', 'xa_total']
+    for col in cols_to_fill:
+        if col not in df.columns:
+            df[col] = 0
+            
+    # Converter minutos para numérico
+    df['minutos_jogados'] = pd.to_numeric(df['minutos_jogados'].replace(',', '', regex=True), errors='coerce').fillna(1)
     
-    return df_merged
+    # Criação das colunas por 90 min (se não vierem prontas do FBref)
+    df['minutos_jogados'] = df['minutos_jogados'].replace(0, 1)
+    df['gols_90'] = (pd.to_numeric(df['gols'], errors='coerce').fillna(0) / df['minutos_jogados']) * 90
+    df['assist_90'] = (pd.to_numeric(df['assistencias'], errors='coerce').fillna(0) / df['minutos_jogados']) * 90
+    df['xg_90'] = (pd.to_numeric(df['xg_total'], errors='coerce').fillna(0) / df['minutos_jogados']) * 90
+    df['xa_90'] = (pd.to_numeric(df['xa_total'], errors='coerce').fillna(0) / df['minutos_jogados']) * 90
+
+    # Converter progress_passes, progress_carries e outras stats avançadas para numérico se existirem
+    for c in ['progress_passes', 'progress_carries', 'tackles', 'cards_yellow', 'cards_red']:
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c], errors='coerce').fillna(0)
+            df[f'{c}_90'] = (df[c] / df['minutos_jogados']) * 90
+
+    return df
