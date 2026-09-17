@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from mplsoccer import Pitch
-import matplotlib.pyplot as plt
 from src.data.data_loader import get_player_stats, load_eventos_df
 
 def render_elenco():
@@ -94,17 +92,45 @@ def render_elenco():
             if chutes_atleta.empty:
                 st.info("O jogador não possui registros de chutes no campeonato.")
             else:
-                pitch = Pitch(pitch_type='statsbomb', pitch_color='#1e1e1e', line_color='#E0E0E0', half=True)
-                fig_pitch, ax = pitch.draw(figsize=(6, 4))
-                fig_pitch.set_facecolor('#121212')
+                fig_pitch = go.Figure()
                 
-                for _, row in chutes_atleta.iterrows():
-                    color = '#D4AF37' if row['tipo'] == 'Gol' else '#888888'
-                    size = row['xg'] * 500 if pd.notnull(row['xg']) else 100
-                    pitch.scatter(row['x'], row['y'], s=size, c=color, alpha=0.8, edgecolors='#121212', ax=ax, label=row['tipo'])
-                    
-                st.pyplot(fig_pitch)
-                st.caption("O tamanho do círculo representa o xG (expectativa de gol). Dourado indica Gol.")
+                # Desenhando metade do campo com Plotly shapes (super leve)
+                fig_pitch.add_shape(type="rect", x0=60, y0=0, x1=120, y1=80, line=dict(color="#E0E0E0", width=2), layer="below") # Campo
+                fig_pitch.add_shape(type="line", x0=60, y0=0, x1=60, y1=80, line=dict(color="#E0E0E0", width=2), layer="below") # Meio campo
+                fig_pitch.add_shape(type="circle", x0=50, y0=30, x1=70, y1=50, line=dict(color="#E0E0E0", width=2), layer="below") # Circulo central
+                fig_pitch.add_shape(type="rect", x0=102, y0=18, x1=120, y1=62, line=dict(color="#E0E0E0", width=2), layer="below") # Grande area
+                fig_pitch.add_shape(type="rect", x0=114, y0=30, x1=120, y1=50, line=dict(color="#E0E0E0", width=2), layer="below") # Pequena area
+                fig_pitch.add_shape(type="circle", x0=107.5, y0=39.5, x1=108.5, y1=40.5, fillcolor="#E0E0E0", line_color="#E0E0E0", layer="below") # Marca do penalti
+                fig_pitch.add_shape(type="path", path="M 102 30 C 95 30, 95 50, 102 50", line=dict(color="#E0E0E0", width=2), layer="below") # Meia lua
+                
+                # Adicionando os chutes
+                cores = {'Gol': '#D4AF37', 'Chute': '#888888'}
+                for tipo in ['Chute', 'Gol']:
+                    chutes_tipo = chutes_atleta[chutes_atleta['tipo'] == tipo]
+                    if not chutes_tipo.empty:
+                        tamanhos = chutes_tipo['xg'].fillna(0.1) * 60 # Escala para Plotly
+                        
+                        fig_pitch.add_trace(go.Scatter(
+                            x=chutes_tipo['x'], y=chutes_tipo['y'],
+                            mode='markers',
+                            name=tipo,
+                            marker=dict(size=tamanhos, color=cores[tipo], opacity=0.8, line=dict(width=1, color='#121212')),
+                            hovertext=[f"xG: {xg:.2f}" for xg in chutes_tipo['xg']],
+                            hoverinfo="text+name"
+                        ))
+                
+                fig_pitch.update_layout(
+                    xaxis=dict(visible=False, range=[60, 122]),
+                    yaxis=dict(visible=False, range=[-2, 82]),
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    margin=dict(l=0, r=0, t=10, b=10),
+                    showlegend=True,
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+                )
+                
+                st.plotly_chart(fig_pitch, use_container_width=True, config={'displayModeBar': False})
+                st.caption("O tamanho do círculo representa o xG (expectativa de gol).")
                 
     except Exception as e:
         st.error(f"Erro ao carregar os dados de elenco: {e}")
