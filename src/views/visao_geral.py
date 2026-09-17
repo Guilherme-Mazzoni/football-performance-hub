@@ -4,9 +4,6 @@ from src.data.data_loader import get_kpis_gerais
 from src.analytics.player_clustering import perform_clustering
 
 def render_visao_geral():
-    st.title("Visão Geral do Clube")
-    st.markdown("Acompanhamento de KPIs Coletivos e Segmentação do Elenco")
-
     try:
         kpis = get_kpis_gerais()
         

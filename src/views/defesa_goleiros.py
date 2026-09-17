@@ -4,9 +4,6 @@ import plotly.express as px
 from src.data.data_loader import get_player_stats, load_times_fbref
 
 def render_defesa_goleiros():
-    st.title("Sistema Defensivo")
-    st.markdown("Análise da solidez defensiva das equipes")
-    
     try:
         times = load_times_fbref()
         df_stats = get_player_stats()

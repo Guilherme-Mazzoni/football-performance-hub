@@ -4,8 +4,6 @@ import plotly.graph_objects as go
 from src.data.data_loader import get_player_stats
 
 def render_elenco():
-    st.title("Análise de Elenco e Radar Tático")
-    
     try:
         df_stats = get_player_stats()
         
@@ -17,9 +15,8 @@ def render_elenco():
         if df_linha.empty:
             df_linha = df_stats
 
-        # Sidebar filter
-        st.sidebar.subheader("Filtro de Atleta")
-        jogador_nome = st.sidebar.selectbox("Selecione um Jogador:", df_linha['nome'].sort_values())
+        # Filter (movido da sidebar para o topo da página)
+        jogador_nome = st.selectbox("Selecione um Jogador:", df_linha['nome'].sort_values())
         
         atleta_data = df_linha[df_linha['nome'] == jogador_nome].iloc[0]
         

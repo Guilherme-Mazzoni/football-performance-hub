@@ -17,30 +17,30 @@ def load_css():
 # Injetar o CSS
 load_css()
 
-# Sidebar Logo
-try:
-    st.sidebar.image("assets/galo.png", width=120)
-except:
-    st.sidebar.markdown("🛡️")
+# Header Horizontal
+col_logo, col_title = st.columns([1, 8])
+with col_logo:
+    try:
+        st.image("assets/galo.png", width=80)
+    except:
+        st.markdown("🛡️")
+with col_title:
+    st.title("Galo Performance Hub")
+    st.markdown("Dashboard tático e estatístico desenvolvido com dados avançados e Inteligência Artificial.")
 
-st.sidebar.title("Galo Performance")
-st.sidebar.markdown("---")
+st.markdown("---")
 
-menu = st.sidebar.radio(
-    "Navegação:",
-    ["Visão Geral", "Análise de Elenco", "Defesa e Goleiros"]
-)
+# Navegação Horizontal usando abas (tabs)
+tab1, tab2, tab3 = st.tabs(["📊 Visão Geral", "🏃‍♂️ Análise de Elenco", "🧤 Defesa e Goleiros"])
 
-st.sidebar.markdown("---")
-st.sidebar.info("Dashboard desenvolvido com dados simulados e modelos de Machine Learning.")
-
-# Rotear para as visões correspondentes
-if menu == "Visão Geral":
+with tab1:
     from src.views.visao_geral import render_visao_geral
     render_visao_geral()
-elif menu == "Análise de Elenco":
+
+with tab2:
     from src.views.elenco import render_elenco
     render_elenco()
-elif menu == "Defesa e Goleiros":
+
+with tab3:
     from src.views.defesa_goleiros import render_defesa_goleiros
     render_defesa_goleiros()
