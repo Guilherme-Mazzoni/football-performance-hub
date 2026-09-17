@@ -48,7 +48,7 @@ def render_defesa_goleiros():
                 labels={'team': 'Equipe', col_ga: 'Gols Sofridos'},
                 title="Ranking de Defesas Vazadas"
             )
-            fig.update_traces(marker_color='#D4AF37')
+            fig.update_traces(marker_color='#AAAAAA')
             fig.update_layout(
                 plot_bgcolor="rgba(0,0,0,0)",
                 paper_bgcolor="rgba(0,0,0,0)",

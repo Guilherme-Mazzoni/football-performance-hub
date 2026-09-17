@@ -24,8 +24,16 @@ def render_elenco():
         atleta_data = df_linha[df_linha['nome'] == jogador_nome].iloc[0]
         
         # Profile Card
-        col1, col2 = st.columns([1, 2])
+        col_img, col1, col2 = st.columns([1, 1, 2])
         
+        with col_img:
+            # Em um projeto real, você teria um dicionário mapeando nomes para URLs reais.
+            # Aqui vamos usar a silhueta padrão baixada, mas o código já aceita fotos!
+            try:
+                st.image("assets/photos/silhueta.png", use_container_width=True)
+            except:
+                st.markdown("👤")
+                
         with col1:
             st.markdown(f"""
             <div class="player-card">
@@ -88,7 +96,7 @@ def render_elenco():
                   theta=nomes_radar,
                   fill='toself',
                   name=atleta_data['nome'],
-                  line_color='#D4AF37'
+                  line_color='#FFFFFF'
             ))
             fig.add_trace(go.Scatterpolar(
                   r=valores_media,

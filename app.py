@@ -17,7 +17,13 @@ def load_css():
 # Injetar o CSS
 load_css()
 
-st.sidebar.title("🛡️ Performance Hub")
+# Sidebar Logo
+try:
+    st.sidebar.image("assets/galo.png", width=120)
+except:
+    st.sidebar.markdown("🛡️")
+
+st.sidebar.title("Galo Performance")
 st.sidebar.markdown("---")
 
 menu = st.sidebar.radio(
