@@ -3,40 +3,35 @@ import pandas as pd
 import plotly.graph_objects as go
 from src.data.data_loader import get_player_stats
 
-def render_elenco():
+def render_elenco(jogador_nome_externo=None):
     try:
         df_stats = get_player_stats()
         
         if df_stats.empty:
-            st.warning("Sem dados de jogadores de linha. Execute o extrator de dados do FBref.")
+            st.warning("Nenhum dado de jogador encontrado.")
             return
 
-        df_linha = df_stats[df_stats['posicao'] != 'GK'] # GK é goleiro no FBref
+        # Filtra apenas jogadores de linha
+        df_linha = df_stats[df_stats['posicao'] != 'GK']
         if df_linha.empty:
             df_linha = df_stats
 
-        # Filter (movido da sidebar para o topo da página)
-        jogador_nome = st.selectbox("Selecione um Jogador:", df_linha['nome'].sort_values())
+        if jogador_nome_externo is None:
+            jogador_nome = st.selectbox("Selecione um Jogador:", df_linha['nome'].sort_values())
+        else:
+            jogador_nome = jogador_nome_externo
         
         atleta_data = df_linha[df_linha['nome'] == jogador_nome].iloc[0]
         
         # Profile Card
-        col_img, col1, col2 = st.columns([1, 1, 2])
+        col1, col2 = st.columns([1, 2])
         
-        with col_img:
-            # Em um projeto real, você teria um dicionário mapeando nomes para URLs reais.
-            # Aqui vamos usar a silhueta padrão baixada, mas o código já aceita fotos!
-            try:
-                st.image("assets/photos/silhueta.png", use_container_width=True)
-            except:
-                st.markdown("👤")
-                
         with col1:
             st.markdown(f"""
-            <div class="player-card">
+            <div class="glass-card">
                 <h3>{atleta_data['nome']}</h3>
                 <p>{atleta_data['time']} | {atleta_data['posicao']}</p>
-                <hr>
+                <hr style="border-color: rgba(255,255,255,0.1)">
                 <p>Idade: {atleta_data.get('idade', 'N/A')}</p>
                 <p>Minutos: {atleta_data['minutos_jogados']}</p>
             </div>

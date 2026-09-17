@@ -17,6 +17,9 @@ def load_css():
 # Injetar o CSS
 load_css()
 
+import pandas as pd
+from src.data.data_loader import get_player_stats
+
 # Header Horizontal
 col_logo, col_title = st.columns([1, 8])
 with col_logo:
@@ -30,6 +33,40 @@ with col_title:
 
 st.markdown("---")
 
+# Global Sidebar (Player Profile)
+df_stats = get_player_stats()
+if not df_stats.empty:
+    df_linha = df_stats[df_stats['posicao'] != 'GK']
+    if df_linha.empty:
+        df_linha = df_stats
+        
+    st.sidebar.subheader("Filtro de Atleta")
+    jogador_selecionado = st.sidebar.selectbox("Selecione um Jogador:", df_linha['nome'].sort_values(), key="global_player")
+    
+    # Renderizar Foto
+    # Baseado na seleção, procuramos a foto correspondente
+    photo_path = f"assets/photos/{jogador_selecionado}.png"
+    
+    if os.path.exists(photo_path):
+        import base64
+        with open(photo_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode()
+            img_html = f'<div class="profile-ring"><img src="data:image/png;base64,{encoded_string}"></div>'
+    else:
+        # Tenta a silhueta padrão
+        try:
+            import base64
+            with open("assets/photos/silhueta.png", "rb") as image_file:
+                encoded_string = base64.b64encode(image_file.read()).decode()
+                img_html = f'<div class="profile-ring"><img src="data:image/png;base64,{encoded_string}"></div>'
+        except:
+            img_html = '<div class="profile-ring"><span class="profile-ring-fallback">👤</span></div>'
+            
+    st.sidebar.markdown(img_html, unsafe_allow_html=True)
+    
+    st.sidebar.markdown("---")
+    st.sidebar.caption("Adicione fotos em PNG recortadas na pasta `assets/photos/` com o nome exato do jogador para customizar!")
+
 # Navegação Horizontal usando abas (tabs)
 tab1, tab2, tab3 = st.tabs(["📊 Visão Geral", "🏃‍♂️ Análise de Elenco", "🧤 Defesa e Goleiros"])
 
@@ -39,7 +76,8 @@ with tab1:
 
 with tab2:
     from src.views.elenco import render_elenco
-    render_elenco()
+    # Passamos o jogador selecionado para a view de elenco não precisar perguntar de novo
+    render_elenco(jogador_selecionado if not df_stats.empty else None)
 
 with tab3:
     from src.views.defesa_goleiros import render_defesa_goleiros

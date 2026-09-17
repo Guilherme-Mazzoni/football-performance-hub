@@ -1,31 +1,93 @@
-/* Custom CSS para classes especificas, cores globais gerenciadas pelo config.toml */
+/* Custom CSS for Galo Performance Hub */
 
-/* Custom Card Classes */
-.player-card {
-    background: linear-gradient(145deg, #1E1E1E, #252525);
-    border: 1px solid #D4AF37;
-    border-radius: 12px;
+/* Global App Styling */
+.stApp {
+    background-color: #0d0d0d;
+    background-image: radial-gradient(circle at 50% -20%, #2a2a2a, #0d0d0d 60%);
+    color: #e0e0e0;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+    background: rgba(30, 30, 30, 0.4);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     padding: 20px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.1);
-    color: #E0E0E0;
+    margin-bottom: 20px;
 }
 
-.player-card h3 {
-    margin-top: 10px;
-    margin-bottom: 5px;
-    font-size: 24px;
-    color: #D4AF37;
+/* Glowing Profile Ring */
+.profile-ring {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin: 0 auto 20px auto;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    overflow: hidden;
 }
 
-.player-card p {
-    color: #888888;
-    margin: 0;
-    font-size: 16px;
+/* Fallback Icon inside the ring */
+.profile-ring-fallback {
+    font-size: 80px;
+    color: #555;
 }
 
-.stat-value {
-    color: #D4AF37;
-    font-weight: bold;
-    font-size: 20px;
+.profile-ring img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Sidebar Customization */
+section[data-testid="stSidebar"] {
+    background-color: #050505;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Metric Adjustments (Neon Glow for numbers) */
+[data-testid="stMetricValue"] {
+    font-size: 2.5rem !important;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+[data-testid="stMetricLabel"] {
+    color: #aaaaaa;
+    font-size: 0.9rem !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Expander / Forms Customization */
+div[data-testid="stExpander"] {
+    background: rgba(30, 30, 30, 0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Make headers pop */
+h1, h2, h3 {
+    color: #ffffff;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+/* Tab Styling */
+button[data-baseweb="tab"] {
+    color: #aaaaaa !important;
+}
+button[data-baseweb="tab"][aria-selected="true"] {
+    color: #ffffff !important;
+    border-bottom: 2px solid #ffffff !important;
 }
