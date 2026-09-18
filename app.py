@@ -31,25 +31,25 @@ try:
     with open("assets/photos/galo.animacao.mp4", "rb") as f_vid:
         vid_base64 = base64.b64encode(f_vid.read()).decode()
         
-    hero_html = f'''
-    <div style="position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 25px; height: 160px; display: flex; align-items: center; padding: 0 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-        <!-- Video Background -->
-        <video autoplay loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; filter: brightness(0.6);">
-            <source src="data:video/mp4;base64,{vid_base64}" type="video/mp4">
-        </video>
-        
-        <!-- Content overlay -->
-        <div style="position: relative; z-index: 1; display: flex; align-items: center; width: 100%;">
-            <div style="margin-right: 25px;">
-                <img src="data:image/svg+xml;base64,{svg_base64}" width="90" style="filter: drop-shadow(0px 0px 15px rgba(255,255,255,0.5));">
-            </div>
-            <div>
-                <h1 style="margin: 0; padding: 0; font-size: 2.5rem; color: #fff; font-weight: 800; letter-spacing: -1px; text-shadow: 2px 2px 8px rgba(0,0,0,0.9);">Galo Performance Hub</h1>
-                <p style="margin: 5px 0 0 0; padding: 0; font-size: 1rem; color: #ddd; font-weight: 400; text-shadow: 1px 1px 4px rgba(0,0,0,0.9);">Dashboard tático e estatístico desenvolvido com dados avançados e Inteligência Artificial.</p>
-            </div>
+    hero_html = f"""
+<div style="position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 25px; height: 160px; display: flex; align-items: center; padding: 0 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+    <!-- Video Background -->
+    <video autoplay loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; filter: brightness(0.6);">
+        <source src="data:video/mp4;base64,{vid_base64}" type="video/mp4">
+    </video>
+    
+    <!-- Content overlay -->
+    <div style="position: relative; z-index: 1; display: flex; align-items: center; width: 100%;">
+        <div style="margin-right: 25px;">
+            <img src="data:image/svg+xml;base64,{svg_base64}" width="90" style="filter: drop-shadow(0px 0px 15px rgba(255,255,255,0.5));">
+        </div>
+        <div>
+            <h1 style="margin: 0; padding: 0; font-size: 2.5rem; color: #fff; font-weight: 800; letter-spacing: -1px; text-shadow: 2px 2px 8px rgba(0,0,0,0.9);">Galo Performance Hub</h1>
+            <p style="margin: 5px 0 0 0; padding: 0; font-size: 1rem; color: #ddd; font-weight: 400; text-shadow: 1px 1px 4px rgba(0,0,0,0.9);">Dashboard tático e estatístico desenvolvido com dados avançados e Inteligência Artificial.</p>
         </div>
     </div>
-    '''
+</div>
+"""
     st.markdown(hero_html, unsafe_allow_html=True)
 except Exception as e:
     st.title("Galo Performance Hub")
